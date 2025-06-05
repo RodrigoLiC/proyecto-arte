@@ -38,8 +38,10 @@ while ejecutando:
                 continue
             if circulos[j] == None or i == j:
                 continue
-
+            
             aplicar_gravedad(circulos[i], circulos[j], G=2)
+
+            
 
 
             pair_interact(i, j, circulos)

@@ -124,14 +124,14 @@ def pair_interact(idx1, idx2, circulos):
         if idx1 != 0:
             aplicar_resorte_con_amortiguamiento(
                         circulos[idx1], circulos[idx2], 
-                        k=0.0005, b=0.0, longitud_reposo=interacciones[code][1], 
-                        max_range=500
+                        k=0.001, b=0.01, longitud_reposo=interacciones[code][1], 
+                        max_range=5000
                     )
         if idx2 != 0:
             aplicar_resorte_con_amortiguamiento(
                         circulos[idx2], circulos[idx1], 
-                        k=0.0005, b=0.0, longitud_reposo=interacciones[code][1], 
-                        max_range=500
+                        k=0.001, b=0.01, longitud_reposo=interacciones[code][1], 
+                        max_range=5000
                     )
         
     return
