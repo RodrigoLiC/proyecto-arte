@@ -1,3 +1,5 @@
+import random
+
 def aplicar_gravedad(circulo1, circulo2, G=1):
     # Vector desde circulo1 a circulo2
     direccion = circulo2.posicion - circulo1.posicion
@@ -5,7 +7,8 @@ def aplicar_gravedad(circulo1, circulo2, G=1):
 
     if distancia == 0:
         return  # Evitar división por cero
-
+    if distancia < 100:
+        return
     # Normalizar dirección
     direccion_normalizada = direccion.normalize()
 
@@ -71,3 +74,43 @@ def aplicar_resorte_con_amortiguamiento(circulo1, circulo2, k=0.1, longitud_repo
 
     # Suponemos masa = 1, o podrías dividir por la masa si lo deseas
     circulo1.velocidad += fuerza_total
+
+def repulsion(circulo1, circulo2, G=1):
+    # Vector desde circulo1 a circulo2
+    direccion = circulo2.posicion - circulo1.posicion
+    distancia = direccion.length()
+
+    if distancia == 0:
+        return
+    
+    if distancia < 100:
+        # Normalizar dirección
+        direccion_normalizada = direccion.normalize()
+
+        # Calcular fuerza de repulsión (modificada)
+        aceleracion_magnitud = G * circulo1.masa / (distancia ** 2)
+
+        # Vector aceleración hacia circulo2
+        aceleracion = direccion_normalizada * aceleracion_magnitud
+
+        # Actualizar velocidad restando la aceleración
+        circulo1.velocidad -= aceleracion
+
+
+def pair(circulo1, circulo2):
+    if circulo2 in circulo1.pair:
+        # Romper par
+        if random.random() < 0.01:
+            circulo1.pair.remove(circulo2)
+            circulo2.pair.remove(circulo1)
+            return False
+        return True
+    else:
+        if len(circulo1.pair) > 3 or len(circulo2.pair) > 3:
+            return False
+        # Crear par
+        if random.random() < 0.01:
+            circulo1.pair.append(circulo2)
+            circulo2.pair.append(circulo1)
+            return True
+        return False

@@ -6,7 +6,7 @@ from game.funciones import *
 import random
 
 pygame.init()
-ANCHO, ALTO = 800, 600
+ANCHO, ALTO = 1200, 700
 ventana = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("Huellas")
 
@@ -34,10 +34,16 @@ while ejecutando:
         for j in range(len(circulos)):
             if i == 0: # circulos[0] es estatico
                 continue
-            if random.random() < 0.9:
-                continue
-            aplicar_gravedad(circulos[i], circulos[j], G=2)
-            aplicar_resorte_con_amortiguamiento(circulos[i], circulos[j], k=0.005, longitud_reposo=100, b=0.02, max_range=250)
+            
+            if pair(circulos[i], circulos[j]):
+                aplicar_resorte_con_amortiguamiento(circulos[i], circulos[j], k=0.005, longitud_reposo=150, b=0.002, max_range=200)
+                aplicar_resorte_con_amortiguamiento(circulos[j], circulos[i], k=0.005, longitud_reposo=150, b=0.002, max_range=200)
+            
+            aplicar_gravedad(circulos[i], circulos[j], G=0.5)
+            
+
+            repulsion(circulos[i], circulos[j], G=10)
+
         circulos[i].actualizar()
         circulos[i].dibujar(ventana)
 

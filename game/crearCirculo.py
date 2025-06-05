@@ -31,7 +31,7 @@ def crear_circulo_aleatorio_fuera_de_escena(ancho_ventana, alto_ventana, radio=3
         velocidad_y = -random.uniform(velocidad_min, velocidad_max)  # hacia arriba
 
 
-    color = (random.randint(200,255), random.randint(100,255), random.randint(100,255))
+    color = (random.randint(150,255), random.randint(100,255), random.randint(100,255))
     masa = random.randint(1, 10)
 
 

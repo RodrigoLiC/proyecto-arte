@@ -7,9 +7,13 @@ class Circulo:
         self.color = color
         self.velocidad = pygame.math.Vector2(velocidad_x, velocidad_y)
         self.masa = masa
+        self.pair = []
 
     def actualizar(self):
-        # Actualiza la posición sumando la velocidad
+        if self.velocidad.length() > 0:
+            # Limita la velocidad máxima para evitar que el círculo se mueva demasiado rápido
+            self.velocidad = self.velocidad.normalize() * max(min(self.velocidad.length(), 6),2)
+        # Actualiza la posición del círculo
         self.posicion += self.velocidad
 
     def dibujar(self, superficie):
