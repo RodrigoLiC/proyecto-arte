@@ -24,7 +24,7 @@ while ejecutando:
         if evento.type == pygame.QUIT:
             ejecutando = False
     
-    if tick % 60 == 0:
+    if tick % 120 == 0:
         # Crear un nuevo círculo aleatorio fuera de la escena
         circulos.append(crear_circulo_aleatorio_fuera_de_escena(ANCHO, ALTO, radio=30))
 
@@ -39,15 +39,55 @@ while ejecutando:
             if circulos[j] == None or i == j:
                 continue
             
-            aplicar_gravedad(circulos[i], circulos[j], G=2)
+            if circulos[i].posicion.distance_to(circulos[j].posicion) > 100:
+                aplicar_gravedad(circulos[i], circulos[j], G=2)
 
-            
+            repulsion(circulos[i], circulos[j], G=3)
 
 
             pair_interact(i, j, circulos)
 
         circulos[i].actualizar()
         circulos[i].dibujar(ventana)
+
+    for circulo in circulos:
+        if circulo is None:
+            continue
+        
+        c1 = circulo.colorBase
+        c2 = circulo.color
+        fraq = 100
+        circulo.color = (
+            (c1[0] + c2[0]*(fraq-1)) // fraq,
+            (c1[1] + c2[1]*(fraq-1)) // fraq,
+            (c1[2] + c2[2]*(fraq-1)) // fraq
+        )
+
+
+        fraq = 40
+
+        if len(circulo.pairs) > 0:
+            c3 = [0, 0, 0]
+            size = len(circulo.pairs)
+            for pair in circulo.pairs:
+                if circulos[pair] is None:
+                    size -= 1
+                    continue
+                    
+                c3[0] += circulos[pair].color[0]
+                c3[1] += circulos[pair].color[1]
+                c3[2] += circulos[pair].color[2]
+            
+            
+
+            if size > 0:
+                c1 = circulo.color
+                circulo.color = (
+                    (c1[0]*(fraq - 1) + c3[0]/size) // fraq,
+                    (c1[1]*(fraq - 1) + c3[1]/size) // fraq,
+                    (c1[2]*(fraq - 1) + c3[2]/size) // fraq
+                )
+
 
     print(interacciones)
 

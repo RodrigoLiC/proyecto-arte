@@ -109,8 +109,11 @@ def pair_interact(idx1, idx2, circulos):
             circulos[idx2].pairs.append(idx1)
     else:
         # Incrementar el valor
-        interacciones[code] = [interacciones[code][0] + 1, interacciones[code][1] * 1.001]
+        interacciones[code] = [interacciones[code][0] + 1, interacciones[code][1] * 1.0005]
         x = interacciones[code][0]
+
+        
+
 
         # Probabilidad de volver a 0: 1 - e^(-x)
         prob = 1 - math.exp(-max(x/600 - 10, 0))
@@ -165,6 +168,7 @@ def eliminar_fueras(circulos, ancho_ventana, alto_ventana):
 
 
             for j in pairs:
+
                 if i > j:
                     i, j = j, i
                 
@@ -172,4 +176,25 @@ def eliminar_fueras(circulos, ancho_ventana, alto_ventana):
                 if code in interacciones:
                     del interacciones[code]
             
-            
+
+
+def repulsion(circulo1, circulo2, G=1):
+    # Vector desde circulo1 a circulo2
+    direccion = circulo2.posicion - circulo1.posicion
+    distancia = direccion.length()
+
+    if distancia == 0:
+        return
+    
+    if distancia < 100:
+        # Normalizar dirección
+        direccion_normalizada = direccion.normalize()
+
+        # Calcular fuerza de repulsión (modificada)
+        aceleracion_magnitud = G * circulo1.masa / (distancia ** 2)
+
+        # Vector aceleración hacia circulo2
+        aceleracion = direccion_normalizada * aceleracion_magnitud
+
+        # Actualizar velocidad restando la aceleración
+        circulo1.velocidad -= aceleracion
