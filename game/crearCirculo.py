@@ -3,6 +3,7 @@ import pygame
 from game.objetos import Circulo
 
 def crear_circulo_aleatorio_fuera_de_escena(ancho_ventana, alto_ventana, radio=30):
+    radio = random.randint(25,30)
     # Decide por qué lado aparecerá: 0=izquierda, 1=derecha, 2=arriba, 3=abajo
     lado = random.randint(0, 3)
 
@@ -31,7 +32,7 @@ def crear_circulo_aleatorio_fuera_de_escena(ancho_ventana, alto_ventana, radio=3
         velocidad_y = -random.uniform(velocidad_min, velocidad_max)  # hacia arriba
 
 
-    color = (random.randint(200,255), random.randint(100,255), random.randint(100,255))
+    color = (random.randint(160,255), random.randint(100,200), random.randint(100,255))
     masa = random.randint(1, 10)
 
 

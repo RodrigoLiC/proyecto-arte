@@ -7,8 +7,15 @@ class Circulo:
         self.color = color
         self.velocidad = pygame.math.Vector2(velocidad_x, velocidad_y)
         self.masa = masa
+        self.pairs = []
 
     def actualizar(self):
+        if self.velocidad.length() == 0:
+            return
+        
+        self.velocidad = self.velocidad.normalize() * max(min(self.velocidad.length(),2),5)
+
+
         # Actualiza la posición sumando la velocidad
         self.posicion += self.velocidad
 
