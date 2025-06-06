@@ -5,17 +5,39 @@ class Circulo:
         self.posicion = pygame.math.Vector2(x, y)
         self.radio = radio
         self.color = color
+        self.colorBase = color
         self.velocidad = pygame.math.Vector2(velocidad_x, velocidad_y)
         self.masa = masa
-        self.pair = []
+        self.pairs = []
 
     def actualizar(self):
-        if self.velocidad.length() > 0:
-            # Limita la velocidad máxima para evitar que el círculo se mueva demasiado rápido
-            self.velocidad = self.velocidad.normalize() * max(min(self.velocidad.length(), 6),2)
-        # Actualiza la posición del círculo
+        if self.velocidad.length() == 0:
+            return
+        
+        self.velocidad = self.velocidad.normalize() * max(min(self.velocidad.length(),2),5)
+
+
+        # Actualiza la posición sumando la velocidad
         self.posicion += self.velocidad
 
     def dibujar(self, superficie):
-        # Dibuja el círculo en la superficie dada
-        pygame.draw.circle(superficie, self.color, (int(self.posicion.x), int(self.posicion.y)), self.radio)
+        # Crear superficie temporal con canal alpha (tamaño suficientemente grande)
+        tam = int(self.radio * 3)
+        capa = pygame.Surface((tam * 2, tam * 2), pygame.SRCALPHA)
+
+        # Centrar la posición del círculo en la superficie
+        centro = (tam, tam)
+        col = self.color
+
+        coef = (self.masa * 0.05)
+
+
+        pygame.draw.circle(capa, (*col, 15), centro, int((1 + coef/2) * self.radio * 2.2))
+        pygame.draw.circle(capa, (*col, 30), centro, int((1 + coef/2) * self.radio * 1.8))
+        pygame.draw.circle(capa, (*col, 50), centro, int((1 + coef/4) * self.radio * 1.4))
+        pygame.draw.circle(capa, (*col, 100), centro, int((1 + coef/7) * self.radio * 1.3))
+        pygame.draw.circle(capa, (*col, 180), centro, int((1 + coef/10) * self.radio * 1.2))
+        pygame.draw.circle(capa, (*col, 255), centro, int(self.radio))
+
+        # Blitear la capa sobre la superficie principal
+        superficie.blit(capa, (int(self.posicion.x - tam), int(self.posicion.y - tam)))
