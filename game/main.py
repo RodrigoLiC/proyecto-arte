@@ -62,6 +62,14 @@ while ejecutando:
             (c1[1] + c2[1]*(fraq-1)) // fraq,
             (c1[2] + c2[2]*(fraq-1)) // fraq
         )
+        k = list(circulo.color)
+        max(k)
+        # reescalar color
+        circulo.color = (
+            int(circulo.color[0] * 255 / max(k)),
+            int(circulo.color[1] * 255 / max(k)),
+            int(circulo.color[2] * 255 / max(k))
+        )
 
 
         fraq = 40
@@ -86,6 +94,14 @@ while ejecutando:
                     (c1[0]*(fraq - 1) + c3[0]/size) // fraq,
                     (c1[1]*(fraq - 1) + c3[1]/size) // fraq,
                     (c1[2]*(fraq - 1) + c3[2]/size) // fraq
+                )
+                k = list(circulo.color)
+                max(k)
+                # reescalar color
+                circulo.color = (
+                    int(circulo.color[0] * 255 / max(k)),
+                    int(circulo.color[1] * 255 / max(k)),
+                    int(circulo.color[2] * 255 / max(k))
                 )
 
 
