@@ -1,11 +1,15 @@
 import random
 import math
+import pygame
 
 # Diccionario para guardar los estados entre pares
 interacciones = {}
 freelist = []
 
 def aplicar_gravedad(circulo1, circulo2, G=1):
+    """
+    Aplica una fuerza de gravedad al circulo1.
+    """
     # Vector desde circulo1 a circulo2
     direccion = circulo2.posicion - circulo1.posicion
     distancia = direccion.length()
@@ -47,6 +51,9 @@ def aplicar_resorte(circulo1, circulo2, k=0.1, longitud_reposo=100):
     circulo1.velocidad += fuerza
 
 def aplicar_resorte_con_amortiguamiento(circulo1, circulo2, k=0.1, longitud_reposo=100, b=0.05, max_range=1000):
+    """
+    Aplica un resorte con amortiguamiento al circulo1.
+    """
     # Vector desde circulo1 a circulo2
     direccion = circulo2.posicion - circulo1.posicion
     distancia = direccion.length()
@@ -193,6 +200,9 @@ def eliminar_fueras(circulos, ancho_ventana, alto_ventana):
 
 
 def repulsion(circulo1, circulo2, G=1):
+    """
+    Aplica una fuerza de repulsión al circulo1.
+    """
     # Vector desde circulo1 a circulo2
     direccion = circulo2.posicion - circulo1.posicion
     distancia = direccion.length()
@@ -212,3 +222,34 @@ def repulsion(circulo1, circulo2, G=1):
 
         # Actualizar velocidad restando la aceleración
         circulo1.velocidad -= aceleracion
+
+
+
+
+
+def transicion_hacia_mouse(circulo, suavizado=0.1):
+    # Obtener la posición del mouse
+    mouse_pos = pygame.mouse.get_pos()
+
+    # Calcular la distancia entre el círculo y la posición del mouse
+    distancia = mouse_pos - circulo.posicion
+    distancia_len = distancia.length()
+
+    if distancia_len < 1:
+        circulo.velocidad = pygame.math.Vector2(0, 0)
+        return
+    if distancia_len < 100:
+        circulo.velocidad *= 0.9
+
+    t = (distancia_len/100)**3
+    
+    
+
+    # Calcular la nueva velocidad
+    velocidad_deseada = distancia.normalize() * t
+
+    print(velocidad_deseada)
+    print(circulo.velocidad)
+    # Actualizar la velocidad del círculo
+    circulo.velocidad += velocidad_deseada
+    circulo.velocidad *= 0.99999

@@ -9,12 +9,14 @@ class Circulo:
         self.velocidad = pygame.math.Vector2(velocidad_x, velocidad_y)
         self.masa = masa
         self.pairs = []
+        self.minVel = 1
+        self.maxVel = 5
 
     def actualizar(self):
         if self.velocidad.length() == 0:
             return
         
-        self.velocidad = self.velocidad.normalize() * max(min(self.velocidad.length(),2),5)
+        self.velocidad = self.velocidad.normalize() * max(min(self.velocidad.length(),self.maxVel),self.minVel)
 
 
         # Actualiza la posición sumando la velocidad
@@ -41,3 +43,8 @@ class Circulo:
 
         # Blitear la capa sobre la superficie principal
         superficie.blit(capa, (int(self.posicion.x - tam), int(self.posicion.y - tam)))
+
+
+    def setVelLimit(self, minVel, maxVel):
+        self.minVel = minVel
+        self.maxVel = maxVel

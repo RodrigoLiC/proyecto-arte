@@ -19,6 +19,7 @@ tick = 0
 
 circulos = [circulo]
 
+circulos[0].setVelLimit(0, 5)
 
 
 while ejecutando:
@@ -46,14 +47,15 @@ while ejecutando:
                 continue
             
             if circulos[i].posicion.distance_to(circulos[j].posicion) > 100:
-                aplicar_gravedad(circulos[i], circulos[j], G=2)
+                aplicar_gravedad(circulos[i], circulos[j], G=1)
 
             repulsion(circulos[i], circulos[j], G=3)
 
 
             pair_interact(i, j, circulos)
 
-        circulos[i].actualizar()
+        if i != 0:
+            circulos[i].actualizar()
         circulos[i].dibujar(ventana)
 
     for circulo in circulos:
@@ -121,6 +123,10 @@ while ejecutando:
     # print()
 
     eliminar_fueras(circulos, ANCHO, ALTO)
+
+    transicion_hacia_mouse(circulos[0], suavizado=0.1)
+    print("ba",circulos[0].velocidad)
+    circulos[0].actualizar()
 
     pygame.display.flip()
 
