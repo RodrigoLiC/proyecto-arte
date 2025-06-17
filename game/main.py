@@ -19,6 +19,8 @@ tick = 0
 
 circulos = [circulo]
 
+
+
 while ejecutando:
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
@@ -26,7 +28,11 @@ while ejecutando:
     
     if tick % 120 == 0:
         # Crear un nuevo círculo aleatorio fuera de la escena
-        circulos.append(crear_circulo_aleatorio_fuera_de_escena(ANCHO, ALTO, radio=30))
+        if len(freelist) > 0:
+            circulos[freelist[0]] = crear_circulo_aleatorio_fuera_de_escena(ANCHO, ALTO, radio=30)
+            freelist.pop(0)
+        else:
+            circulos.append(crear_circulo_aleatorio_fuera_de_escena(ANCHO, ALTO, radio=30))
 
     ventana.fill((0, 0, 0))
 
@@ -105,14 +111,14 @@ while ejecutando:
                 )
 
 
-    print(interacciones)
+    # print(interacciones)
 
-    #for circulo in circulos:
+    # for circulo in circulos:
     #    if circulo is None:
     #        print("X ", end="")
     #    else:
     #        print("O ", end="")
-    #print()
+    # print()
 
     eliminar_fueras(circulos, ANCHO, ALTO)
 

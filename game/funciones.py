@@ -3,6 +3,7 @@ import math
 
 # Diccionario para guardar los estados entre pares
 interacciones = {}
+freelist = []
 
 def aplicar_gravedad(circulo1, circulo2, G=1):
     # Vector desde circulo1 a circulo2
@@ -108,18 +109,18 @@ def pair_interact(idx1, idx2, circulos):
             interacciones[code] = [1, distance]
             circulos[idx1].pairs.append(idx2)
             circulos[idx2].pairs.append(idx1)
+        else:
+            del interacciones[code]
+            return
     else:
         # Incrementar el valor
         interacciones[code] = [interacciones[code][0] + 1, interacciones[code][1] * 1.0005]
         x = interacciones[code][0]
 
-        
-
-
         # Probabilidad de volver a 0: 1 - e^(-x)
         prob = 1 - math.exp(-max(x/600 - 10, 0))
         if random.random() < prob:
-            interacciones[code] = [0, 0]
+            del interacciones[code]
             circulos[idx1].pairs.remove(idx2)
             circulos[idx2].pairs.remove(idx1)
     
@@ -137,12 +138,13 @@ def pair_interact(idx1, idx2, circulos):
                         k=0.001, b=0.01, longitud_reposo=interacciones[code][1], 
                         max_range=5000
                     )
-        
+
     return
 
 
 def eliminar_fueras(circulos, ancho_ventana, alto_ventana):
     global interacciones
+    global freelist
 
     for i in range(len(circulos)):
         circulo = circulos[i]
@@ -165,17 +167,28 @@ def eliminar_fueras(circulos, ancho_ventana, alto_ventana):
 
         if is_fuera:
             pairs = circulo.pairs.copy()
+            print(f"Eliminando amistad de {i} con: {', '.join(map(str,pairs))}")
             circulos[i] = None
+            freelist.append(i)
 
 
             for j in pairs:
-
-                if i > j:
-                    i, j = j, i
+                li = min(i, j)
+                lj = max(i, j)
                 
-                code = f"{i}_{j}"
+                code = f"{li}_{lj}"
+                #print(f"Eliminando amistad {code}")
                 if code in interacciones:
                     del interacciones[code]
+
+            print(interacciones.keys())
+
+            for circulo in circulos:
+                if circulo is None:
+                    print("X ", end="")
+                else:
+                    print("O ", end="")
+            print()
             
 
 
