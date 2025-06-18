@@ -37,6 +37,16 @@ while ejecutando:
 
     ventana.fill((0, 0, 0))
 
+
+    for keys in interacciones.keys():
+        li, lj = map(int, keys.split('_'))
+        if circulos[li] is None or circulos[lj] is None:
+            continue
+        # draw line between circles
+        pygame.draw.line(ventana, (5, 5, 5), circulos[li].posicion, circulos[lj].posicion, 8)
+
+
+
     for i in range(len(circulos)):
         if circulos[i] == None:
             continue
@@ -49,7 +59,7 @@ while ejecutando:
             if circulos[i].posicion.distance_to(circulos[j].posicion) > 100:
                 aplicar_gravedad(circulos[i], circulos[j], G=1)
 
-            repulsion(circulos[i], circulos[j], G=3)
+            repulsion(circulos[i], circulos[j], G=4)
 
 
             pair_interact(i, j, circulos)
@@ -121,7 +131,6 @@ while ejecutando:
     eliminar_fueras(circulos, ANCHO, ALTO)
 
     transicion_hacia_mouse(circulos[0], suavizado=0.1)
-    print("ba",circulos[0].velocidad)
     circulos[0].actualizar()
 
     pygame.display.flip()

@@ -110,10 +110,11 @@ def pair_interact(idx1, idx2, circulos):
     if x[0] == 0:
         distance = (circulos[idx1].posicion - circulos[idx2].posicion).length()
 
-        if (random.random() < 0.01 and distance < 400) \
-              or (random.random() < 0.1 and distance < 250) \
-                or (distance < 100):
-            interacciones[code] = [1, distance]
+        if not (len(circulos[idx1].pairs) > 10 or len(circulos[idx2].pairs) > 10) \
+            and ((random.random() < 0.01 and distance < 300) \
+              or (random.random() < 0.1 and distance < 200) \
+                or (distance < 100)):
+            interacciones[code] = [1, max(distance,150)]
             circulos[idx1].pairs.append(idx2)
             circulos[idx2].pairs.append(idx1)
         else:
@@ -121,15 +122,18 @@ def pair_interact(idx1, idx2, circulos):
             return
     else:
         # Incrementar el valor
-        interacciones[code] = [interacciones[code][0] + 1, interacciones[code][1] * 1.0005]
+        interacciones[code] = [interacciones[code][0] + 1, interacciones[code][1] * (1 + 0.0005 * len(circulos[idx1].pairs))]
         x = interacciones[code][0]
+        y = interacciones[code][1]
 
         # Probabilidad de volver a 0: 1 - e^(-x)
-        prob = 1 - math.exp(-max(x/600 - 10, 0))
-        if random.random() < prob:
+        prob1 = 1 - math.exp(-max(x/600 - 10, 0))
+        prob2 = 0 if y < 300 else 0.01
+        if random.random() < prob1 or random.random() < prob2:
             del interacciones[code]
             circulos[idx1].pairs.remove(idx2)
             circulos[idx2].pairs.remove(idx1)
+            return
     
     
     if interacciones[code][0] > 0:
@@ -166,10 +170,10 @@ def eliminar_fueras(circulos, ancho_ventana, alto_ventana):
         r = circulo.radio
 
         is_fuera = (
-            x + r < 0 or     # completamente a la izquierda
-            x - r > ancho_ventana or  # completamente a la derecha
-            y + r < 0 or     # completamente arriba
-            y - r > alto_ventana  # completamente abajo
+            x + 3*r < 0 or     # completamente a la izquierda
+            x - 3*r > ancho_ventana or  # completamente a la derecha
+            y + 3*r < 0 or     # completamente arriba
+            y - 3*r > alto_ventana  # completamente abajo
         )
 
         if is_fuera:
@@ -178,6 +182,8 @@ def eliminar_fueras(circulos, ancho_ventana, alto_ventana):
             circulos[i] = None
             freelist.append(i)
 
+            if i in circulos[0].pairs:
+                circulos[0].pairs.remove(i)
 
             for j in pairs:
                 li = min(i, j)
@@ -248,8 +254,6 @@ def transicion_hacia_mouse(circulo, suavizado=0.1):
     # Calcular la nueva velocidad
     velocidad_deseada = distancia.normalize() * t
 
-    print(velocidad_deseada)
-    print(circulo.velocidad)
     # Actualizar la velocidad del círculo
     circulo.velocidad += velocidad_deseada
     circulo.velocidad *= 0.99999

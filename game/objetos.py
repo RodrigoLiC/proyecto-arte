@@ -9,7 +9,7 @@ class Circulo:
         self.velocidad = pygame.math.Vector2(velocidad_x, velocidad_y)
         self.masa = masa
         self.pairs = []
-        self.minVel = 1
+        self.minVel = 3
         self.maxVel = 5
 
     def actualizar(self):
