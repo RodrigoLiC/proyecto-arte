@@ -81,35 +81,31 @@ while ejecutando:
 
 
         fraq = 40
-
         if len(circulo.pairs) > 0:
-            c3 = [0, 0, 0]
-            size = len(circulo.pairs)
+            c3 = [0.0, 0.0, 0.0]
+            peso_total = 0.0
             for pair in circulo.pairs:
                 if circulos[pair] is None:
-                    size -= 1
                     continue
-                    
-                c3[0] += circulos[pair].color[0]
-                c3[1] += circulos[pair].color[1]
-                c3[2] += circulos[pair].color[2]
-            
-            
+                peso = getattr(circulos[pair], 'peso_resonancia', 1.0)
+                c3[0] += circulos[pair].color[0] * peso
+                c3[1] += circulos[pair].color[1] * peso
+                c3[2] += circulos[pair].color[2] * peso
+                peso_total += peso
 
-            if size > 0:
+            if peso_total > 0:
                 c1 = circulo.color
                 circulo.color = (
-                    (c1[0]*(fraq - 1) + c3[0]/size) // fraq,
-                    (c1[1]*(fraq - 1) + c3[1]/size) // fraq,
-                    (c1[2]*(fraq - 1) + c3[2]/size) // fraq
+                    int((c1[0]*(fraq - 1) + c3[0]/peso_total) // fraq),
+                    int((c1[1]*(fraq - 1) + c3[1]/peso_total) // fraq),
+                    int((c1[2]*(fraq - 1) + c3[2]/peso_total) // fraq)
                 )
                 k = list(circulo.color)
-                max(k)
-                # reescalar color
+                max_k = max(k)
                 circulo.color = (
-                    int(circulo.color[0] * 255 / max(k)),
-                    int(circulo.color[1] * 255 / max(k)),
-                    int(circulo.color[2] * 255 / max(k))
+                    int(circulo.color[0] * 255 / max_k),
+                    int(circulo.color[1] * 255 / max_k),
+                    int(circulo.color[2] * 255 / max_k)
                 )
 
 
@@ -135,3 +131,4 @@ while ejecutando:
 
 pygame.quit()
 sys.exit()
+
