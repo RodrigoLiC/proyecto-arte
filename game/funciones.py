@@ -233,6 +233,43 @@ def repulsion(circulo1, circulo2, G=1):
 
 
 
+def eliminar_todos_excepto_inicial(circulos):
+    """
+    Elimina gradualmente todos los círculos excepto el inicial (índice 0)
+    """
+    global interacciones
+    global freelist
+    
+    for i in range(1, len(circulos)):  # Empezar desde 1 para preservar el círculo inicial
+        circulo = circulos[i]
+        
+        if circulo is None:
+            continue
+        
+        # Probabilidad alta de eliminar círculos en fase de finalización
+        if random.random() < 0.1:  # 10% de probabilidad por frame
+            pairs = circulo.pairs.copy()
+            print(f"Finalizando: Eliminando círculo {i} con amistades: {', '.join(map(str,pairs))}")
+            circulos[i] = None
+            freelist.append(i)
+            
+            # Eliminar del círculo inicial si está conectado
+            if i in circulos[0].pairs:
+                circulos[0].pairs.remove(i)
+            
+            # Eliminar todas las conexiones
+            for j in pairs:
+                if circulos[j] is not None and i in circulos[j].pairs:
+                    circulos[j].pairs.remove(i)
+                
+                li = min(i, j)
+                lj = max(i, j)
+                code = f"{li}_{lj}"
+                
+                if code in interacciones:
+                    del interacciones[code]
+
+
 def transicion_hacia_mouse(circulo, suavizado=0.1):
     # Obtener la posición del mouse
     mouse_pos = pygame.mouse.get_pos()

@@ -4,12 +4,14 @@
 
 Dependiendo del sistema operativo y la terminal que uses, ejecuta el comando correspondiente para activar el entorno virtual `.venv`:
 
-- **Windows (PowerShell):**
+-   **Windows (PowerShell):**
+
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-- **Linux / MacOS**
+-   **Linux / MacOS**
+
 ```bash
 source .venv/bin/activate
 ```
