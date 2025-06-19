@@ -11,7 +11,6 @@ ANCHO, ALTO = 1200, 700
 ventana = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("Huellas - Simulación de 2 minutos")
 
-# Inicializar audio ambiente
 sonido_ambiente = inicializar_audio()
 if sonido_ambiente:
     reproducir_audio_ambiente(sonido_ambiente)
@@ -23,22 +22,20 @@ reloj = pygame.time.Clock()
 ejecutando = True
 tick = 0
 
-# Control de tiempo para simulación de 2 minutos
-DURACION_SIMULACION = 2 * 60 * 60  # 2 minutos en ticks (60 FPS)
+DURACION_SIMULACION = 2 * 60 * 60
 tiempo_inicio = pygame.time.get_ticks()
-TIEMPO_LIMITE_MS = 2 * 60 * 1000  # 2 minutos en milisegundos
+TIEMPO_LIMITE_MS = 2 * 60 * 1000
 
 circulos = [circulo]
-fase_simulacion = "activa"  # "activa" o "finalizando"
+fase_simulacion = "activa"
 
 circulos[0].setVelLimit(0, 5)
 
 
-while ejecutando:
+while ejecutando:    
     tiempo_actual = pygame.time.get_ticks()
     tiempo_transcurrido = tiempo_actual - tiempo_inicio
     
-    # Verificar si han pasado 2 minutos
     if tiempo_transcurrido >= TIEMPO_LIMITE_MS and fase_simulacion == "activa":
         fase_simulacion = "finalizando"
         print("¡Tiempo cumplido! Iniciando fase de finalización...")
@@ -47,18 +44,15 @@ while ejecutando:
         if evento.type == pygame.QUIT:
             ejecutando = False
     
-    # Solo crear nuevos círculos si la simulación está activa
     if tick % 120 == 0 and fase_simulacion == "activa":
-        # Crear un nuevo círculo aleatorio fuera de la escena
         if len(freelist) > 0:
             circulos[freelist[0]] = crear_circulo_aleatorio_fuera_de_escena(ANCHO, ALTO, radio=30)
             freelist.pop(0)
         else:
             circulos.append(crear_circulo_aleatorio_fuera_de_escena(ANCHO, ALTO, radio=30))
-      # En fase de finalización, acelerar la eliminación de círculos
+    
     if fase_simulacion == "finalizando":
         eliminar_todos_excepto_inicial(circulos)
-        # Verificar si solo queda el círculo inicial
         circulos_restantes = sum(1 for c in circulos if c is not None)
         if circulos_restantes <= 1:
             print("¡Simulación completada! Solo queda la bola inicial.")
@@ -69,11 +63,8 @@ while ejecutando:
             pygame.display.flip()
             pygame.time.wait(3000)  # Esperar 3 segundos para mostrar el mensaje
             ejecutando = False
-
-    ventana.fill((0, 0, 0))
-    
-    # Mostrar indicador de tiempo restante
-    tiempo_restante_s = max(0, (TIEMPO_LIMITE_MS - tiempo_transcurrido) // 1000)
+            ventana.fill((0, 0, 0))
+            tiempo_restante_s = max(0, (TIEMPO_LIMITE_MS - tiempo_transcurrido) // 1000)
     if fase_simulacion == "activa":
         font = pygame.font.Font(None, 36)
         texto_tiempo = font.render(f"Tiempo restante: {tiempo_restante_s // 60}:{tiempo_restante_s % 60:02d}", True, (255, 255, 255))
@@ -184,7 +175,6 @@ while ejecutando:
     reloj.tick(60)
     tick += 1
 
-# Limpiar recursos de audio
 if sonido_ambiente:
     pygame.mixer.stop()
 

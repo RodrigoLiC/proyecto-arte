@@ -245,9 +245,7 @@ def eliminar_todos_excepto_inicial(circulos):
         
         if circulo is None:
             continue
-        
-        # Probabilidad alta de eliminar círculos en fase de finalización
-        if random.random() < 0.1:  # 10% de probabilidad por frame
+          if random.random() < 0.1:
             pairs = circulo.pairs.copy()
             print(f"Finalizando: Eliminando círculo {i} con amistades: {', '.join(map(str,pairs))}")
             circulos[i] = None
