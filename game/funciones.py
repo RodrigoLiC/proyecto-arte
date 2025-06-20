@@ -245,7 +245,7 @@ def eliminar_todos_excepto_inicial(circulos):
         
         if circulo is None:
             continue
-          if random.random() < 0.1:
+        if random.random() < 0.1:
             pairs = circulo.pairs.copy()
             print(f"Finalizando: Eliminando círculo {i} con amistades: {', '.join(map(str,pairs))}")
             circulos[i] = None
