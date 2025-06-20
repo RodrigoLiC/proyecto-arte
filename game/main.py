@@ -10,7 +10,7 @@ import random
 pygame.init()
 ANCHO, ALTO = 1200, 700
 ventana = pygame.display.set_mode((ANCHO, ALTO))
-pygame.display.set_caption("Huellas - Simulación de 2 minutos")
+pygame.display.set_caption("Huellas")
 
 # Inicializar sistema de audio
 duracion_simulacion_segundos = 120  # Duración por defecto
@@ -41,6 +41,8 @@ print(f"⏰ Simulación configurada para {duracion_simulacion_segundos//60}:{dur
 
 circulos = [circulo]
 fase_simulacion = "activa"
+motivo_finalizacion = ""  # Para distinguir entre "musica_terminada" y "tiempo_cumplido"
+tiempo_inicio_finalizacion = None  # Para el temporizador de emergencia
 
 circulos[0].setVelLimit(0, 5)
 
@@ -53,11 +55,23 @@ while ejecutando:
     # Actualizar audio según el estado de la simulación
     num_conexiones = len(interacciones)
     gestor_audio.actualizar_audio(tiempo_restante_s, num_conexiones)
-    
-    if tiempo_transcurrido >= TIEMPO_LIMITE_MS and fase_simulacion == "activa":
+      # Verificar si la música terminó naturalmente (solo después de 10 segundos para evitar false positives)
+    if (tiempo_transcurrido > 10000 and  # Al menos 10 segundos desde el inicio
+        not pygame.mixer.music.get_busy() and 
+        fase_simulacion == "activa" and
+        gestor_audio.musica_actual is not None):  # Asegurar que había música reproduciéndose
         fase_simulacion = "finalizando"
+        motivo_finalizacion = "musica_terminada"
+        tiempo_inicio_finalizacion = tiempo_actual
+        print("🎵 ¡La música terminó! Iniciando eliminación inmediata de círculos...")
+    
+    # Verificar si se cumplió el tiempo límite (backup por si la música no termina)
+    elif tiempo_transcurrido >= TIEMPO_LIMITE_MS and fase_simulacion == "activa":
+        fase_simulacion = "finalizando"
+        motivo_finalizacion = "tiempo_cumplido"
+        tiempo_inicio_finalizacion = tiempo_actual
         gestor_audio.iniciar_fade_final()
-        print("¡Tiempo cumplido! Iniciando fase de finalización...")
+        print("⏰ ¡Tiempo cumplido! Iniciando fase de finalización...")
     
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT:
@@ -67,20 +81,36 @@ while ejecutando:
         if len(freelist) > 0:
             circulos[freelist[0]] = crear_circulo_aleatorio_fuera_de_escena(ANCHO, ALTO, radio=30)
             freelist.pop(0)
-        else:
-            circulos.append(crear_circulo_aleatorio_fuera_de_escena(ANCHO, ALTO, radio=30))
+        else:            circulos.append(crear_circulo_aleatorio_fuera_de_escena(ANCHO, ALTO, radio=30))
     
     if fase_simulacion == "finalizando":
-        eliminar_todos_excepto_inicial(circulos)
+        # Usar eliminación inmediata si la música terminó, gradual si fue por tiempo
+        velocidad = "inmediata" if motivo_finalizacion == "musica_terminada" else "normal"
+        eliminar_todos_excepto_inicial(circulos, velocidad)
+        
         circulos_restantes = sum(1 for c in circulos if c is not None)
-        if circulos_restantes <= 1:
-            print("¡Simulación completada! Solo queda la bola inicial.")
-            # Mostrar mensaje final
-            font = pygame.font.Font(None, 72)
-            texto_final = font.render("¡SIMULACIÓN COMPLETADA!", True, (0, 255, 0))
-            ventana.blit(texto_final, (ANCHO//2 - 300, ALTO//2 - 50))
-            pygame.display.flip()
-            pygame.time.wait(3000)  # Esperar 3 segundos para mostrar el mensaje            ejecutando = False
+        tiempo_finalizando = tiempo_actual - tiempo_inicio_finalizacion        # Salir si solo queda el círculo inicial O si ha pasado demasiado tiempo finalizando (emergencia)
+        if circulos_restantes <= 1 or tiempo_finalizando > 10000:  # Máximo 10 segundos finalizando
+            if tiempo_finalizando > 10000:
+                print("⚠️ Salida de emergencia: Finalizando por tiempo excedido")
+            else:
+                print("🏁 ¡Simulación completada! Solo queda la bola inicial.")
+            print(f"🎯 Motivo de finalización: {motivo_finalizacion}")
+            
+            # DETENER COMPLETAMENTE EL AUDIO
+            pygame.mixer.music.stop()
+            gestor_audio.detener_audio()
+            
+            # Colocar la bola inicial en el centro
+            if circulos[0] is not None:
+                circulos[0].posicion.x = ANCHO // 2
+                circulos[0].posicion.y = ALTO // 2
+                circulos[0].velocidad.x = 0
+                circulos[0].velocidad.y = 0
+            
+            # Cambiar a fase final - mantener entorno pero sin nuevas bolas
+            fase_simulacion = "completada"
+            print("🎯 Simulación completada. Cierra la ventana manualmente cuando quieras salir.")
 
     ventana.fill((0, 0, 0))
     
@@ -106,38 +136,49 @@ while ejecutando:
         font = pygame.font.Font(None, 48)
         texto_finalizando = font.render("🎵 Finalizando simulación...", True, (255, 255, 0))
         ventana.blit(texto_finalizando, (ANCHO//2 - 250, 10))
+    elif fase_simulacion == "completada":
+        # Mostrar mensaje de simulación completada
+        font = pygame.font.Font(None, 48)
+        texto_completada = font.render("🏁 ¡SIMULACIÓN COMPLETADA!", True, (0, 255, 0))
+        ventana.blit(texto_completada, (ANCHO//2 - 250, 10))
+        
+        # Mostrar instrucción para cerrar
+        font_pequena = pygame.font.Font(None, 24)
+        texto_instruccion = font_pequena.render("Cierra la ventana manualmente cuando desees salir", True, (200, 200, 200))
+        ventana.blit(texto_instruccion, (ANCHO//2 - 200, 60))    # Solo mostrar líneas de conexión si no estamos en fase completada
+    if fase_simulacion != "completada":
+        for keys in interacciones.keys():
+            li, lj = map(int, keys.split('_'))
+            if circulos[li] is None or circulos[lj] is None:
+                continue
+            # draw line between circles
+            pygame.draw.line(ventana, (5, 5, 5), circulos[li].posicion, circulos[lj].posicion, 8)
 
-
-    for keys in interacciones.keys():
-        li, lj = map(int, keys.split('_'))
-        if circulos[li] is None or circulos[lj] is None:
-            continue
-        # draw line between circles
-        pygame.draw.line(ventana, (5, 5, 5), circulos[li].posicion, circulos[lj].posicion, 8)
-
-
-
+    # Procesar física y dibujar círculos
     for i in range(len(circulos)):
         if circulos[i] == None:
             continue
-        for j in range(len(circulos)):
-            if i == 0: # circulos[0] es estatico
-                continue
-            if circulos[j] == None or i == j:
-                continue
-            
-            if circulos[i].posicion.distance_to(circulos[j].posicion) > 100:
-                aplicar_gravedad(circulos[i], circulos[j], G=1)
+        
+        # Solo aplicar física si no estamos en fase completada
+        if fase_simulacion != "completada":
+            for j in range(len(circulos)):
+                if i == 0: # circulos[0] es estatico
+                    continue
+                if circulos[j] == None or i == j:
+                    continue
+                
+                if circulos[i].posicion.distance_to(circulos[j].posicion) > 100:
+                    aplicar_gravedad(circulos[i], circulos[j], G=1)
 
-            repulsion(circulos[i], circulos[j], G=4)
+                repulsion(circulos[i], circulos[j], G=4)
 
+                pair_interact(i, j, circulos)
 
-            pair_interact(i, j, circulos)
-
-        if i != 0:
-            circulos[i].actualizar()
-        circulos[i].dibujar(ventana)
-
+            if i != 0:
+                circulos[i].actualizar()
+        
+        # Siempre dibujar los círculos que existen
+        circulos[i].dibujar(ventana)    # Actualizar colores de los círculos
     for circulo in circulos:
         if circulo is None:
             continue
@@ -158,7 +199,6 @@ while ejecutando:
             int(circulo.color[1] * 255 / max(k)),
             int(circulo.color[2] * 255 / max(k))
         )
-
 
         fraq = 40
         if len(circulo.pairs) > 0:
@@ -196,12 +236,15 @@ while ejecutando:
     #        print("X ", end="")
     #    else:
     #        print("O ", end="")
-    # print()
-
-    eliminar_fueras(circulos, ANCHO, ALTO)
-
-    transicion_hacia_mouse(circulos[0], suavizado=0.1)
-    circulos[0].actualizar()
+    # print()    # Solo eliminar círculos fuera de pantalla si no estamos en fase completada
+    if fase_simulacion != "completada":
+        eliminar_fueras(circulos, ANCHO, ALTO)
+    
+    # Solo aplicar transición hacia el mouse si no estamos en fase completada
+    if fase_simulacion != "completada":
+        transicion_hacia_mouse(circulos[0], suavizado=0.1)
+        circulos[0].actualizar()
+    # En fase completada, mantener el círculo inicial estático en el centro (ya está posicionado)
 
     pygame.display.flip()
     

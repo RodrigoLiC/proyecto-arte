@@ -233,21 +233,33 @@ def repulsion(circulo1, circulo2, G=1):
 
 
 
-def eliminar_todos_excepto_inicial(circulos):
+def eliminar_todos_excepto_inicial(circulos, velocidad_eliminacion="normal"):
     """
-    Elimina gradualmente todos los círculos excepto el inicial (índice 0)
+    Elimina todos los círculos excepto el inicial (índice 0)
+    velocidad_eliminacion: "normal" (10% por frame) o "inmediata" (80% por frame)
     """
     global interacciones
     global freelist
+    
+    # Ajustar probabilidad según la velocidad solicitada
+    if velocidad_eliminacion == "inmediata":
+        probabilidad = 0.8  # 80% de probabilidad por frame - muy rápido
+    else:
+        probabilidad = 0.1  # 10% de probabilidad por frame - gradual
     
     for i in range(1, len(circulos)):  # Empezar desde 1 para preservar el círculo inicial
         circulo = circulos[i]
         
         if circulo is None:
             continue
-        if random.random() < 0.1:
+            
+        if random.random() < probabilidad:
             pairs = circulo.pairs.copy()
-            print(f"Finalizando: Eliminando círculo {i} con amistades: {', '.join(map(str,pairs))}")
+            if velocidad_eliminacion == "inmediata":
+                print(f"🚀 Eliminación rápida: círculo {i}")
+            else:
+                print(f"Finalizando: Eliminando círculo {i} con amistades: {', '.join(map(str,pairs))}")
+            
             circulos[i] = None
             freelist.append(i)
             
