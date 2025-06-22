@@ -37,10 +37,10 @@ class GestorAudio:
             audio_file = File(archivo)
             if audio_file is not None and hasattr(audio_file, 'info'):
                 return int(audio_file.info.length)
-            return 120  # Duración por defecto si no se puede leer
+            return 120  
         except Exception as e:
             print(f"Error al obtener duración de {archivo}: {e}")
-            return 120  # Duración por defecto
+            return 120  
     
     def mostrar_canciones_disponibles(self):
         """
@@ -87,7 +87,6 @@ class GestorAudio:
                     return None, 120
                 
                 if entrada == "":
-                    # Selección aleatoria
                     cancion = random.choice(self.lista_musica)
                     duracion = self.obtener_duracion_archivo(cancion)
                     print(f"🎲 Selección aleatoria: {os.path.basename(cancion)} ({duracion//60}:{duracion%60:02d})")
@@ -120,7 +119,6 @@ class GestorAudio:
             print("🎵 Formatos soportados: .mp3, .wav, .ogg, .m4a")
             return False
         
-        # Buscar archivos de música
         extensiones = ['*.mp3', '*.wav', '*.ogg', '*.m4a']
         self.lista_musica = []
         
@@ -145,7 +143,7 @@ class GestorAudio:
         Permite seleccionar y reproducir una canción específica
         """
         if not self.lista_musica:
-            return 120  # Duración por defecto
+            return 120  
         
         cancion_seleccionada, duracion = self.seleccionar_cancion_interactiva()
         
@@ -155,7 +153,7 @@ class GestorAudio:
         try:
             pygame.mixer.music.load(cancion_seleccionada)
             pygame.mixer.music.set_volume(self.volumen_actual)
-            pygame.mixer.music.play(-1)  # Loop infinito
+            pygame.mixer.music.play(-1)
             self.musica_actual = cancion_seleccionada
             self.estado_simulacion = "activa"
             self.duracion_cancion = duracion
@@ -173,12 +171,11 @@ class GestorAudio:
         if not self.lista_musica or len(self.lista_musica) <= 1:
             return
         
-        # Probabilidad de cambiar música según el evento
         probabilidades = {
-            "nueva_conexion": 0.05,  # 5% de cambiar con nueva conexión
-            "conexion_rota": 0.08,   # 8% de cambiar cuando se rompe conexión
-            "circulo_eliminado": 0.03, # 3% cuando se elimina un círculo
-            "muchas_conexiones": 0.15  # 15% cuando hay muchas conexiones activas
+            "nueva_conexion": 0.05, 
+            "conexion_rota": 0.08,   
+            "circulo_eliminado": 0.03, 
+            "muchas_conexiones": 0.15
         }
         
         if random.random() < probabilidades.get(tipo_evento, 0):
